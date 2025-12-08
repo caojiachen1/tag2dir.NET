@@ -45,6 +45,11 @@ namespace tag2dir.NET.ViewModels
         public ObservableCollection<MoveRecord> MovePreview { get; } = new();
 
         /// <summary>
+        /// 按人物分组的移动预览
+        /// </summary>
+        public ObservableCollection<PersonMoveGroup> GroupedMovePreview { get; } = new();
+
+        /// <summary>
         /// 是否正在扫描
         /// </summary>
         [ObservableProperty]
@@ -258,7 +263,11 @@ namespace tag2dir.NET.ViewModels
             }
 
             MovePreview.Clear();
+            GroupedMovePreview.Clear();
+            
             var preview = _fileMoveService.GeneratePreview(Images, DestinationFolder);
+            var groupedRecords = new Dictionary<string, PersonMoveGroup>();
+            
             foreach (var record in preview)
             {
                 // 从对应的 ImageInfo 复制缩略图或异步加载
@@ -272,10 +281,29 @@ namespace tag2dir.NET.ViewModels
                     _ = LoadMoveRecordThumbnailAsync(record);
                 }
                 MovePreview.Add(record);
+                
+                // 按人物分组
+                var personName = record.PersonName ?? "未知";
+                if (!groupedRecords.TryGetValue(personName, out var group))
+                {
+                    group = new PersonMoveGroup
+                    {
+                        PersonName = personName,
+                        TargetFolder = Path.Combine(DestinationFolder, personName)
+                    };
+                    groupedRecords[personName] = group;
+                }
+                group.Records.Add(record);
+            }
+            
+            // 按人物名称排序添加到集合
+            foreach (var group in groupedRecords.Values.OrderBy(g => g.PersonName))
+            {
+                GroupedMovePreview.Add(group);
             }
 
             ShowPreview = true;
-            StatusMessage = $"📋 预览: 将移动 {MovePreview.Count} 个文件";
+            StatusMessage = $"📋 预览: 将移动 {MovePreview.Count} 个文件到 {GroupedMovePreview.Count} 个人物文件夹";
         }
 
         /// <summary>

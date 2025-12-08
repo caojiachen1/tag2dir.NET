@@ -212,7 +212,7 @@
 
         <!-- 底部预览面板（可关闭） -->
         <Border Grid.Row="2" 
-                Height="280"
+                Height="350"
                 IsVisible="{Binding ShowPreview}"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
@@ -220,80 +220,119 @@
                 Padding="16,12">
             <Grid RowDefinitions="Auto,*">
                 <!-- 标题栏和关闭按钮 -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="移动预览" 
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
+                        <TextBlock Text="📋 移动预览" 
                                    FontWeight="Bold" 
-                                   FontSize="16"
+                                   FontSize="18"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding MovePreview.Count, StringFormat='共 {0} 个文件'}"
-                                   FontSize="12"
-                                   Opacity="0.7"
-                                   VerticalAlignment="Center"/>
+                        <Border Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                CornerRadius="12"
+                                Padding="12,4">
+                            <TextBlock Text="{Binding MovePreview.Count, StringFormat='{}{0} 个文件'}"
+                                       FontSize="12"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Background="{DynamicResource SystemFillColorSuccessBackgroundBrush}"
+                                CornerRadius="12"
+                                Padding="12,4">
+                            <TextBlock Text="{Binding GroupedMovePreview.Count, StringFormat='{}{0} 个人物文件夹'}"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                     <Button Grid.Column="1" 
                             Command="{Binding ClosePreviewCommand}"
                             Background="Transparent"
-                            Padding="8,4">
+                            Padding="8,4"
+                            ToolTip.Tip="关闭预览">
                         <ui:FAPathIcon Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
-                                       Width="14" Height="14"/>
+                                       Width="16" Height="16"/>
                     </Button>
                 </Grid>
-                <!-- 预览列表（横向滚动） -->
+                
+                <!-- 按人物分组的预览列表（纯上下滚动） -->
                 <ScrollViewer Grid.Row="1"
-                              HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding MovePreview}">
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding GroupedMovePreview}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="12"/>
+                                <StackPanel Orientation="Vertical" Spacing="12"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="models:MoveRecord">
+                            <DataTemplate DataType="models:PersonMoveGroup">
                                 <Border Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
                                         CornerRadius="8"
-                                        Padding="12"
-                                        Width="180">
-                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto">
-                                        <!-- 缩略图 -->
-                                        <Border Grid.Row="0"
-                                                CornerRadius="6" 
-                                                ClipToBounds="True"
-                                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                                                Height="120"
-                                                Margin="0,0,0,8">
-                                            <Image Source="{Binding Thumbnail}"
-                                                   Stretch="Uniform"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                        </Border>
+                                        Padding="12">
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <!-- 左侧：人物信息 -->
+                                        <StackPanel Grid.Column="0" Width="200" Margin="0,0,16,0">
+                                            <!-- 人物名称和头像 -->
+                                            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,8">
+                                                <Border Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                                        CornerRadius="18"
+                                                        Width="36" Height="36">
+                                                    <TextBlock Text="{Binding PersonName[0]}"
+                                                               FontSize="16"
+                                                               FontWeight="Bold"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding PersonName}" 
+                                                               FontWeight="Bold"
+                                                               FontSize="14"/>
+                                                    <TextBlock Text="{Binding Records.Count, StringFormat='{}{0} 个文件'}"
+                                                               FontSize="11"
+                                                               Opacity="0.7"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                            
+                                            <!-- 目标文件夹路径 -->
+                                            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                                    CornerRadius="4"
+                                                    Padding="8,4">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <ui:FAPathIcon Data="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" 
+                                                                   Width="12" Height="12"
+                                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                                                    <TextBlock Text="{Binding TargetFolder}"
+                                                               FontSize="10"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Opacity="0.8"
+                                                               MaxWidth="160"
+                                                               ToolTip.Tip="{Binding TargetFolder}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
                                         
-                                        <!-- 人物名称 -->
-                                        <TextBlock Grid.Row="1"
-                                                   Text="{Binding PersonName}" 
-                                                   FontWeight="SemiBold"
-                                                   FontSize="13"
-                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                        
-                                        <!-- 文件名 -->
-                                        <TextBlock Grid.Row="2"
-                                                   Text="{Binding FileName}" 
-                                                   FontSize="11"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Opacity="0.8"
-                                                   Margin="0,2,0,0"
-                                                   ToolTip.Tip="{Binding FileName}"/>
-                                        
-                                        <!-- 目标路径 -->
-                                        <TextBlock Grid.Row="3"
-                                                   Text="{Binding ToPath, StringFormat='→ {0}'}" 
-                                                   FontSize="10"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Opacity="0.5"
-                                                   Margin="0,2,0,0"
-                                                   ToolTip.Tip="{Binding ToPath}"/>
+                                        <!-- 右侧：该人物的图片缩略图列表（使用 WrapPanel 自动换行） -->
+                                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Records}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="models:MoveRecord">
+                                                    <Border CornerRadius="4" 
+                                                            ClipToBounds="True"
+                                                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                                            Width="60" Height="60"
+                                                            Margin="2"
+                                                            ToolTip.Tip="{Binding FileName}">
+                                                        <Image Source="{Binding Thumbnail}"
+                                                               Stretch="Uniform"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
