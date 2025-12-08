@@ -1,0 +1,306 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:tag2dir.NET.ViewModels"
+        xmlns:models="using:tag2dir.NET.Models"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="tag2dir.NET.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="tag2dir.NET - 图片人物分类工具"
+        MinWidth="900" MinHeight="600"
+        Width="1200" Height="800">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- 顶部工具栏 -->
+        <Border Grid.Row="0" 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="16">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
+                <!-- 源文件夹 -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,8">
+                    <TextBlock Text="源文件夹" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding SourceFolder, Mode=TwoWay}" 
+                                 Watermark="选择包含图片的文件夹..."
+                                 IsReadOnly="True"/>
+                        <Button Grid.Column="1" 
+                                Content="浏览..." 
+                                Command="{Binding BrowseSourceFolderCommand}"
+                                Margin="8,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 目标文件夹 -->
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,8">
+                    <TextBlock Text="目标文件夹" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding DestinationFolder, Mode=TwoWay}" 
+                                 Watermark="选择输出文件夹..."
+                                 IsReadOnly="True"/>
+                        <Button Grid.Column="1" 
+                                Content="浏览..." 
+                                Command="{Binding BrowseDestinationFolderCommand}"
+                                Margin="8,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 操作按钮 -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Orientation="Horizontal" Spacing="8">
+                    <Button Command="{Binding ScanCommand}"
+                            IsVisible="{Binding !IsScanning}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:FAPathIcon Data="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z" Width="16" Height="16"/>
+                            <TextBlock Text="扫描图片"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding CancelScanCommand}"
+                            IsVisible="{Binding IsScanning}"
+                            Background="{DynamicResource SystemFillColorCautionBackgroundBrush}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:FAPathIcon Data="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" Width="16" Height="16"/>
+                            <TextBlock Text="取消扫描"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding PreviewMoveCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:FAPathIcon Data="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" Width="16" Height="16"/>
+                            <TextBlock Text="预览移动"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding MoveFilesCommand}"
+                            Classes="accent">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:FAPathIcon Data="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10zm-8-4l4-4h-3V6h-2v4H8l4 4z" Width="16" Height="16"/>
+                            <TextBlock Text="执行移动"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding UndoMoveCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:FAPathIcon Data="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" Width="16" Height="16"/>
+                            <TextBlock Text="撤销移动"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ToggleSelectAllCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:FAPathIcon Data="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zM3 9h2V7H3v2zm10-6h-2v2h2V3zm6 0v2h2c0-1.1-.9-2-2-2zM5 21v-2H3c0 1.1.9 2 2 2zm-2-4h2v-2H3v2zM9 3H7v2h2V3zm2 18h2v-2h-2v2zm8-8h2v-2h-2v2zm0 8c1.1 0 2-.9 2-2h-2v2zm0-12h2V7h-2v2zm0 8h2v-2h-2v2zm-4 4h2v-2h-2v2zm0-16h2V3h-2v2zM7 17h10V7H7v10zm2-8h6v6H9V9z" Width="16" Height="16"/>
+                            <TextBlock Text="全选/取消"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 主内容区 -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+            <!-- 图片网格 -->
+            <Border Grid.Column="0" Margin="16,16,8,16">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" 
+                               Text="{Binding ScanProgressText}" 
+                               IsVisible="{Binding IsScanning}"
+                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                               Margin="0,0,0,8"/>
+                    
+                    <!-- ExifTool 警告 -->
+                    <ui:InfoBar Grid.Row="0"
+                                IsOpen="{Binding !HasExifTool}"
+                                Severity="Warning"
+                                Title="ExifTool 未安装"
+                                Message="请安装 ExifTool (https://exiftool.org/) 并将其添加到系统 PATH"
+                                Margin="0,0,0,8"/>
+
+                    <!-- 使用 ScrollViewer + ItemsControl 实现网格（不可选中） -->
+                    <ScrollViewer Grid.Row="1"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Images}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="models:ImageInfo">
+                                    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="8"
+                                            Width="220"
+                                            Height="380"
+                                            Margin="6"
+                                            ClipToBounds="True">
+                                        <Grid RowDefinitions="Auto,180,Auto,Auto,Auto">
+                                            <!-- 选择框 + 文件名 -->
+                                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+                                                <CheckBox Grid.Column="0" 
+                                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" 
+                                                           Text="{Binding FileName}"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center"
+                                                           Margin="4,0,0,0"
+                                                           ToolTip.Tip="{Binding FileName}"/>
+                                            </Grid>
+                                            
+                                            <!-- 缩略图（竖幅比例，横幅图片上下留白） -->
+                                            <Border Grid.Row="1"
+                                                    CornerRadius="6"
+                                                    ClipToBounds="True"
+                                                    Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
+                                                    Height="180">
+                                                <Image Source="{Binding Thumbnail}"
+                                                       Stretch="Uniform"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                            </Border>
+                                            
+                                            <!-- 人物信息 -->
+                                            <StackPanel Grid.Row="2" Margin="0,8,0,0">
+                                                <TextBlock Text="人物:" 
+                                                           FontSize="11" 
+                                                           Opacity="0.6"/>
+                                                <TextBlock Text="{Binding PeopleDisplay}"
+                                                           FontSize="12"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip.Tip="{Binding PeopleDisplay}"/>
+                                            </StackPanel>
+                                            
+                                            <!-- 目标人物选择 -->
+                                            <StackPanel Grid.Row="3" Margin="0,4,0,0">
+                                                <TextBlock Text="移动到:" 
+                                                           FontSize="11" 
+                                                           Opacity="0.6"/>
+                                                <ComboBox ItemsSource="{Binding People}"
+                                                          SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
+                                                          HorizontalAlignment="Stretch"
+                                                          Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            
+                                            <!-- 标签 -->
+                                            <TextBlock Grid.Row="4"
+                                                       Text="{Binding TagsDisplay}"
+                                                       FontSize="10"
+                                                       Opacity="0.5"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,4,0,0"
+                                                       ToolTip.Tip="{Binding TagsDisplay}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- 预览面板 -->
+            <Border Grid.Column="1" 
+                    Width="380"
+                    IsVisible="{Binding ShowPreview}"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,0,0,0"
+                    Margin="0,16,16,16"
+                    Padding="16">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" 
+                               Text="移动预览" 
+                               FontWeight="Bold" 
+                               FontSize="16"
+                               Margin="0,0,0,12"/>
+                    <!-- 预览列表（不可选中） -->
+                    <ScrollViewer Grid.Row="1"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding MovePreview}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="models:MoveRecord">
+                                    <Border Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
+                                            CornerRadius="6"
+                                            Padding="8"
+                                            Margin="0,0,0,8">
+                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+                                            <!-- 缩略图 -->
+                                            <Border Grid.Column="0" Grid.RowSpan="3"
+                                                    CornerRadius="4" 
+                                                    ClipToBounds="True"
+                                                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                                    Width="80" Height="80"
+                                                    Margin="0,0,12,0">
+                                                <Image Source="{Binding Thumbnail}"
+                                                       Stretch="Uniform"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                            </Border>
+                                            
+                                            <!-- 人物名称 -->
+                                            <TextBlock Grid.Column="1" Grid.Row="0"
+                                                       Text="{Binding PersonName}" 
+                                                       FontWeight="SemiBold"
+                                                       FontSize="14"
+                                                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                                            
+                                            <!-- 文件名 -->
+                                            <TextBlock Grid.Column="1" Grid.Row="1"
+                                                       Text="{Binding FileName}" 
+                                                       FontSize="12"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Opacity="0.9"
+                                                       Margin="0,2,0,0"/>
+                                            
+                                            <!-- 目标路径 -->
+                                            <TextBlock Grid.Column="1" Grid.Row="2"
+                                                       Text="{Binding ToPath, StringFormat='→ {0}'}" 
+                                                       FontSize="10"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Opacity="0.6"
+                                                       Margin="0,2,0,0"
+                                                       ToolTip.Tip="{Binding ToPath}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部状态栏 -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="16,8">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" 
+                           Text="{Binding StatusMessage}"
+                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="{Binding Images.Count, StringFormat='图片: {0}'}"
+                               VerticalAlignment="Center"
+                               Opacity="0.7"/>
+                    <TextBlock Text="{Binding AllPeople.Count, StringFormat='人物: {0}'}"
+                               VerticalAlignment="Center"
+                               Opacity="0.7"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+
