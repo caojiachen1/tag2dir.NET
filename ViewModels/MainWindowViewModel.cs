@@ -238,11 +238,19 @@ namespace tag2dir.NET.ViewModels
         private bool CanCancelScan() => IsScanning;
 
         /// <summary>
-        /// 预览移动
+        /// 预览移动（点击切换显示/隐藏）
         /// </summary>
         [RelayCommand(CanExecute = nameof(CanPreviewMove))]
         private void PreviewMove()
         {
+            // 如果已经显示预览，则关闭
+            if (ShowPreview)
+            {
+                ShowPreview = false;
+                StatusMessage = "预览已关闭";
+                return;
+            }
+
             if (string.IsNullOrEmpty(DestinationFolder))
             {
                 StatusMessage = "⚠️ 请先选择目标文件夹";
@@ -268,6 +276,16 @@ namespace tag2dir.NET.ViewModels
 
             ShowPreview = true;
             StatusMessage = $"📋 预览: 将移动 {MovePreview.Count} 个文件";
+        }
+
+        /// <summary>
+        /// 关闭预览面板
+        /// </summary>
+        [RelayCommand]
+        private void ClosePreview()
+        {
+            ShowPreview = false;
+            StatusMessage = "预览已关闭";
         }
 
         private bool CanPreviewMove() => Images.Count > 0 && !string.IsNullOrEmpty(DestinationFolder);

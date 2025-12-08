@@ -18,7 +18,7 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
         <!-- 顶部工具栏 -->
         <Border Grid.Row="0" 
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
@@ -104,9 +104,9 @@
         </Border>
 
         <!-- 主内容区 -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="1">
             <!-- 图片网格 -->
-            <Border Grid.Column="0" Margin="16,16,8,16">
+            <Border Margin="16,16,16,16">
                 <Grid RowDefinitions="Auto,*">
                     <TextBlock Grid.Row="0" 
                                Text="{Binding ScanProgressText}" 
@@ -208,82 +208,103 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
-
-            <!-- 预览面板 -->
-            <Border Grid.Column="1" 
-                    Width="380"
-                    IsVisible="{Binding ShowPreview}"
-                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1,0,0,0"
-                    Margin="0,16,16,16"
-                    Padding="16">
-                <Grid RowDefinitions="Auto,*">
-                    <TextBlock Grid.Row="0" 
-                               Text="移动预览" 
-                               FontWeight="Bold" 
-                               FontSize="16"
-                               Margin="0,0,0,12"/>
-                    <!-- 预览列表（不可选中） -->
-                    <ScrollViewer Grid.Row="1"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding MovePreview}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="models:MoveRecord">
-                                    <Border Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
-                                            CornerRadius="6"
-                                            Padding="8"
-                                            Margin="0,0,0,8">
-                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
-                                            <!-- 缩略图 -->
-                                            <Border Grid.Column="0" Grid.RowSpan="3"
-                                                    CornerRadius="4" 
-                                                    ClipToBounds="True"
-                                                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                                                    Width="80" Height="80"
-                                                    Margin="0,0,12,0">
-                                                <Image Source="{Binding Thumbnail}"
-                                                       Stretch="Uniform"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                            </Border>
-                                            
-                                            <!-- 人物名称 -->
-                                            <TextBlock Grid.Column="1" Grid.Row="0"
-                                                       Text="{Binding PersonName}" 
-                                                       FontWeight="SemiBold"
-                                                       FontSize="14"
-                                                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
-                                            
-                                            <!-- 文件名 -->
-                                            <TextBlock Grid.Column="1" Grid.Row="1"
-                                                       Text="{Binding FileName}" 
-                                                       FontSize="12"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Opacity="0.9"
-                                                       Margin="0,2,0,0"/>
-                                            
-                                            <!-- 目标路径 -->
-                                            <TextBlock Grid.Column="1" Grid.Row="2"
-                                                       Text="{Binding ToPath, StringFormat='→ {0}'}" 
-                                                       FontSize="10"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Opacity="0.6"
-                                                       Margin="0,2,0,0"
-                                                       ToolTip.Tip="{Binding ToPath}"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
         </Grid>
 
-        <!-- 底部状态栏 -->
+        <!-- 底部预览面板（可关闭） -->
         <Border Grid.Row="2" 
+                Height="280"
+                IsVisible="{Binding ShowPreview}"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="16,12">
+            <Grid RowDefinitions="Auto,*">
+                <!-- 标题栏和关闭按钮 -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="移动预览" 
+                                   FontWeight="Bold" 
+                                   FontSize="16"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding MovePreview.Count, StringFormat='共 {0} 个文件'}"
+                                   FontSize="12"
+                                   Opacity="0.7"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" 
+                            Command="{Binding ClosePreviewCommand}"
+                            Background="Transparent"
+                            Padding="8,4">
+                        <ui:FAPathIcon Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
+                                       Width="14" Height="14"/>
+                    </Button>
+                </Grid>
+                <!-- 预览列表（横向滚动） -->
+                <ScrollViewer Grid.Row="1"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding MovePreview}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="12"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="models:MoveRecord">
+                                <Border Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
+                                        CornerRadius="8"
+                                        Padding="12"
+                                        Width="180">
+                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+                                        <!-- 缩略图 -->
+                                        <Border Grid.Row="0"
+                                                CornerRadius="6" 
+                                                ClipToBounds="True"
+                                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                                Height="120"
+                                                Margin="0,0,0,8">
+                                            <Image Source="{Binding Thumbnail}"
+                                                   Stretch="Uniform"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                        </Border>
+                                        
+                                        <!-- 人物名称 -->
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding PersonName}" 
+                                                   FontWeight="SemiBold"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        
+                                        <!-- 文件名 -->
+                                        <TextBlock Grid.Row="2"
+                                                   Text="{Binding FileName}" 
+                                                   FontSize="11"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Opacity="0.8"
+                                                   Margin="0,2,0,0"
+                                                   ToolTip.Tip="{Binding FileName}"/>
+                                        
+                                        <!-- 目标路径 -->
+                                        <TextBlock Grid.Row="3"
+                                                   Text="{Binding ToPath, StringFormat='→ {0}'}" 
+                                                   FontSize="10"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Opacity="0.5"
+                                                   Margin="0,2,0,0"
+                                                   ToolTip.Tip="{Binding ToPath}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- 底部状态栏 -->
+        <Border Grid.Row="3" 
                 Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                 BorderThickness="0,1,0,0"
