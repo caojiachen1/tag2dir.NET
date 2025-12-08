@@ -1,5 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using System;
+using System.Diagnostics;
+using tag2dir.NET.Models;
 using tag2dir.NET.ViewModels;
 
 namespace tag2dir.NET.Views
@@ -54,5 +57,45 @@ namespace tag2dir.NET.Views
                 // 忽略无法滚动到顶部的情况
             }
         }
+
+        private void Thumbnail_DoubleTapped(object? sender, RoutedEventArgs e)
+        {
+            // 双击主缩略图打开图片
+            if (sender is Control c && c.DataContext is ImageInfo info)
+            {
+                OpenFileWithShell(info.Path);
+            }
+        }
+
+        private void PreviewThumbnail_DoubleTapped(object? sender, RoutedEventArgs e)
+        {
+            // 双击预览缩略图打开图片
+            if (sender is Control c && c.DataContext is MoveRecord rec)
+            {
+                OpenFileWithShell(rec.FromPath);
+            }
+        }
+
+        private void OpenFileWithShell(string path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    return;
+
+                var psi = new ProcessStartInfo(path)
+                {
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                if (DataContext is MainWindowViewModel vm)
+                {
+                    vm.StatusMessage = $"⚠️ 无法打开文件: {ex.Message}";
+                }
+            }
+        }
+        }
     }
-}

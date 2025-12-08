@@ -135,7 +135,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="models:ImageInfo">
-                                    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                                             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
@@ -143,7 +143,8 @@
                                             Width="220"
                                             Height="380"
                                             Margin="6"
-                                            ClipToBounds="True">
+                                            ClipToBounds="True"
+                                            ToolTip.Tip="{Binding Path}">
                                         <Grid RowDefinitions="Auto,180,Auto,Auto,Auto">
                                             <!-- 选择框 + 文件名 -->
                                             <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
@@ -164,7 +165,9 @@
                                                     CornerRadius="6"
                                                     ClipToBounds="True"
                                                     Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
-                                                    Height="180">
+                                                    Height="180"
+                                                    ToolTip.Tip="{Binding Path}"
+                                                    DoubleTapped="Thumbnail_DoubleTapped">
                                                 <Image Source="{Binding Thumbnail}"
                                                        Stretch="Uniform"
                                                        HorizontalAlignment="Center"
@@ -326,7 +329,8 @@
                                                             Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                                                             Width="60" Height="60"
                                                             Margin="2"
-                                                            ToolTip.Tip="{Binding FileName}">
+                                                            ToolTip.Tip="{Binding FromPath}"
+                                                            DoubleTapped="PreviewThumbnail_DoubleTapped">
                                                         <Image Source="{Binding Thumbnail}"
                                                                Stretch="Uniform"
                                                                HorizontalAlignment="Center"
