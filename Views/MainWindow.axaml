@@ -124,6 +124,7 @@
 
                     <!-- 使用 ScrollViewer + ItemsControl 实现网格（不可选中） -->
                     <ScrollViewer Grid.Row="1"
+                                  x:Name="ImagesScrollViewer"
                                   HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding Images}">
@@ -254,6 +255,7 @@
                 
                 <!-- 按人物分组的预览列表（纯上下滚动） -->
                 <ScrollViewer Grid.Row="1"
+                              x:Name="PreviewScrollViewer"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding GroupedMovePreview}">
@@ -353,6 +355,18 @@
                            Text="{Binding StatusMessage}"
                            VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                    <Button Click="ScrollToTop_Click" ToolTip.Tip="滚动到图片列表顶部" Padding="8,4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <ui:FAPathIcon Data="M7 14l5-5 5 5H7z" Width="12" Height="12"/>
+                            <TextBlock Text="顶部" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Click="ScrollToBottom_Click" ToolTip.Tip="滚动到图片列表底部" Padding="8,4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <ui:FAPathIcon Data="M7 10l5 5 5-5H7z" Width="12" Height="12"/>
+                            <TextBlock Text="底部" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <TextBlock Text="{Binding Images.Count, StringFormat='图片: {0}'}"
                                VerticalAlignment="Center"
                                Opacity="0.7"/>
