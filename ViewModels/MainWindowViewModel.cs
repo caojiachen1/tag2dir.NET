@@ -95,6 +95,13 @@ namespace tag2dir.NET.ViewModels
         public ObservableCollection<string> AllPeople { get; } = new();
 
         /// <summary>
+        /// 人物数量（用于 UI 绑定，确保在集合变化时触发 PropertyChanged）
+        /// 使用 ObservableProperty 自动生成通知支持。
+        /// </summary>
+        [ObservableProperty]
+        private int _peopleCount;
+
+        /// <summary>
         /// 用于获取存储提供者的回调
         /// </summary>
         public Func<IStorageProvider>? GetStorageProvider { get; set; }
@@ -106,6 +113,11 @@ namespace tag2dir.NET.ViewModels
             {
                 StatusMessage = "⚠️ 未检测到 ExifTool，请安装 https://exiftool.org/ 并将其加入系统 PATH";
             }
+
+            // 当人物集合变化时，更新 PeopleCount 以触发属性通知，确保 UI 刷新
+            AllPeople.CollectionChanged += (_, _) => PeopleCount = AllPeople.Count;
+            // 初始化
+            PeopleCount = AllPeople.Count;
         }
 
         /// <summary>
@@ -161,7 +173,8 @@ namespace tag2dir.NET.ViewModels
 
             try
             {
-                var allPeopleSet = new HashSet<string>();
+                // 使用字典作为 "桶" 来统计人物（键为人物名，值为出现次数）
+                var peopleBuckets = new Dictionary<string, int>();
                 int count = 0;
 
                 await Task.Run(async () =>
@@ -192,9 +205,22 @@ namespace tag2dir.NET.ViewModels
                         // 异步加载缩略图
                         _ = LoadThumbnailAsync(imageInfo);
 
+                        // 更新桶：如果遇到新的人物，添加到桶并立即将其加入到 UI 绑定的 AllPeople 集合
                         foreach (var person in people)
                         {
-                            allPeopleSet.Add(person);
+                            if (string.IsNullOrWhiteSpace(person))
+                                continue;
+
+                            if (peopleBuckets.ContainsKey(person))
+                            {
+                                peopleBuckets[person]++;
+                            }
+                            else
+                            {
+                                peopleBuckets[person] = 1;
+                                // 将新人物添加到 AllPeople（必须在 UI 线程）以便实时更新界面
+                                await Dispatcher.UIThread.InvokeAsync(() => AllPeople.Add(person));
+                            }
                         }
 
                         await Dispatcher.UIThread.InvokeAsync(() =>
@@ -204,13 +230,7 @@ namespace tag2dir.NET.ViewModels
                     }
                 }, _scanCts.Token);
 
-                // 更新人物列表
-                foreach (var person in allPeopleSet.OrderBy(p => p))
-                {
-                    AllPeople.Add(person);
-                }
-
-                StatusMessage = $"✅ 扫描完成，共找到 {Images.Count} 张图片，{AllPeople.Count} 个人物";
+                StatusMessage = $"✅ 扫描完成，共找到 {Images.Count} 张图片，{PeopleCount} 个人物";
             }
             catch (OperationCanceledException)
             {

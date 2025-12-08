@@ -356,7 +356,7 @@
                     <TextBlock Text="{Binding Images.Count, StringFormat='图片: {0}'}"
                                VerticalAlignment="Center"
                                Opacity="0.7"/>
-                    <TextBlock Text="{Binding AllPeople.Count, StringFormat='人物: {0}'}"
+                    <TextBlock Text="{Binding PeopleCount, StringFormat='人物: {0}'}"
                                VerticalAlignment="Center"
                                Opacity="0.7"/>
                 </StackPanel>
