@@ -10,6 +10,7 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="tag2dir.NET - 图片人物分类工具"
+        WindowState="Maximized"
         MinWidth="900" MinHeight="600"
         Width="1200" Height="800">
 
