@@ -118,6 +118,13 @@ namespace tag2dir.NET.ViewModels
             AllPeople.CollectionChanged += (_, _) => PeopleCount = AllPeople.Count;
             // 初始化
             PeopleCount = AllPeople.Count;
+
+            // 当图片集合变化时，通知移动和预览命令的 CanExecute 状态改变
+            Images.CollectionChanged += (_, _) =>
+            {
+                MoveFilesCommand.NotifyCanExecuteChanged();
+                PreviewMoveCommand.NotifyCanExecuteChanged();
+            };
         }
 
         /// <summary>
