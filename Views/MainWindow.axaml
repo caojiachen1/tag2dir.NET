@@ -99,6 +99,10 @@
                             <TextBlock Text="全选/取消"/>
                         </StackPanel>
                     </Button>
+                    <CheckBox Content="包含子文件夹" 
+                              IsChecked="{Binding IncludeSubfolders, Mode=TwoWay}"
+                              VerticalAlignment="Center"
+                              Margin="8,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>

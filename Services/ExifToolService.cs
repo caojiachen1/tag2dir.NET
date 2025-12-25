@@ -84,12 +84,12 @@ namespace tag2dir.NET.Services
         /// <summary>
         /// 扫描目录中的所有图片
         /// </summary>
-        public static IEnumerable<string> ScanImages(string directory)
+        public static IEnumerable<string> ScanImages(string directory, SearchOption searchOption = SearchOption.AllDirectories)
         {
             if (!Directory.Exists(directory))
                 yield break;
 
-            foreach (var file in Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(directory, "*.*", searchOption))
             {
                 if (IsAllowedImage(file))
                     yield return file;

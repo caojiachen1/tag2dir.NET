@@ -27,8 +27,10 @@ namespace tag2dir.NET.ViewModels
         private string _sourceFolder = string.Empty;
 
         /// <summary>
-        /// 目标文件夹路径
+        /// 是否包含子文件夹
         /// </summary>
+        [ObservableProperty]
+        private bool _includeSubfolders = true;
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MoveFilesCommand))]
         [NotifyCanExecuteChangedFor(nameof(PreviewMoveCommand))]
@@ -186,7 +188,8 @@ namespace tag2dir.NET.ViewModels
 
                 await Task.Run(async () =>
                 {
-                    foreach (var path in ExifToolService.ScanImages(SourceFolder))
+                    var searchOption = IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                    foreach (var path in ExifToolService.ScanImages(SourceFolder, searchOption))
                     {
                         if (_scanCts.Token.IsCancellationRequested)
                             break;
